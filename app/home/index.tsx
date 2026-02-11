@@ -11,7 +11,6 @@ export default function Dashboard() {
                 blurRadius={5}
             >
                 <View className="flex-1 justify-center items-center">
-                    {/* Dashboard content empty (placeholder only) */}
                     <Text className="text-white/50 text-xl font-light">Dashboard Placeholder</Text>
                 </View>
             </ImageBackground>

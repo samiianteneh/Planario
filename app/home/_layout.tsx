@@ -9,33 +9,27 @@ export default function HomeLayout() {
             <Drawer
                 drawerContent={(props) => <CustomDrawerContent {...props} />}
                 screenOptions={{
-                    headerShown: false, // We will handle headers in screens or hide them as per design "dashboard content itself should be empty (placeholder only)"
-                    // But usually we need a button to open drawer. 
-                    // If headers are hidden, how does user open drawer? 
-                    // "Dashboard content itself should be empty (placeholder only). Layout must include a sidebar (drawer navigation)."
-                    // Usually a hamburger menu is strictly required. 
-                    // I will enable header but make it transparent or styled to match the background?
-                    // Or I check if I should add a custom header. 
-                    // "Background styling... Landing page image as background for... all pages after login."
-                    // So the header might clash.
-                    // I'll keep header SHOWN but transparent/styled so users can open the drawer. 
-                    // OR I rely on swipe. But a button is better.
+                    headerShown: true, // Show header globally
+                    headerTitle: '', // Hide default title
+                    headerTransparent: true, // Make header transparent to float over the background
+                    headerTintColor: '#fff', // White menu icon
                     headerStyle: {
                         backgroundColor: 'transparent',
                     },
-                    headerTintColor: '#fff',
-                    headerTitleStyle: {
-                        fontWeight: 'bold',
-                    },
-                    headerTransparent: true, // Make header transparent to float over the background
                     drawerStyle: {
                         backgroundColor: '#111827', // dark bg for drawer
                         width: 280,
                     },
                     drawerActiveTintColor: '#2dd4bf', // teal-400
+                    drawerActiveBackgroundColor: 'rgba(45, 212, 191, 0.1)',
                     drawerInactiveTintColor: '#9ca3af', // gray-400
                     drawerLabelStyle: {
-                        marginLeft: -20, // Adjust label position if icon is used
+                        marginLeft: 0,
+                        fontSize: 15,
+                    },
+                    drawerItemStyle: {
+                        borderRadius: 12,
+                        marginVertical: 4,
                     },
                 }}
             >
