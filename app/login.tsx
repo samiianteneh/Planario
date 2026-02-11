@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
@@ -15,13 +17,15 @@ import { useAuth } from '../context/auth';
 export default function Login() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const { signIn } = useAuth();
+    const router = useRouter();
 
     const handleLogin = async () => {
         if (name === 'Samii' && password === '%TGBnhy6') {
             await signIn(name);
         } else {
-            Alert.alert('Login Failed', 'Invalid credentials');
+            Alert.alert('Login Failed', 'Incorrect name or password. Please try again.');
         }
     };
 
@@ -40,7 +44,7 @@ export default function Login() {
                 >
                     <View className="bg-black/40 p-8 rounded-3xl border border-white/10 backdrop-blur-md">
                         <Text className="text-white text-3xl font-bold text-center mb-8 tracking-wider">
-                            WELCOME BACK
+                            LOGIN
                         </Text>
 
                         <View className="space-y-4">
@@ -58,14 +62,26 @@ export default function Login() {
 
                             <View>
                                 <Text className="text-gray-300 ml-1 mb-2 text-sm font-medium">Password</Text>
-                                <TextInput
-                                    className="bg-white/10 text-white p-4 rounded-xl border border-white/10 focus:border-teal-500/50"
-                                    placeholder="Enter your password"
-                                    placeholderTextColor="#6b7280"
-                                    secureTextEntry
-                                    value={password}
-                                    onChangeText={setPassword}
-                                />
+                                <View className="relative">
+                                    <TextInput
+                                        className="bg-white/10 text-white p-4 rounded-xl border border-white/10 focus:border-teal-500/50 pr-12"
+                                        placeholder="Enter your password"
+                                        placeholderTextColor="#6b7280"
+                                        secureTextEntry={!showPassword}
+                                        value={password}
+                                        onChangeText={setPassword}
+                                    />
+                                    <TouchableOpacity
+                                        className="absolute right-4 top-4"
+                                        onPress={() => setShowPassword(!showPassword)}
+                                    >
+                                        <Ionicons
+                                            name={showPassword ? 'eye-off' : 'eye'}
+                                            size={24}
+                                            color="#6b7280"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
 
                             <TouchableOpacity

@@ -48,25 +48,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-        const inAuthGroup = segments[0] === '(auth)';
 
-        if (!user && !inAuthGroup) {
-            // If user is not signed in and not in the auth group, redirect to landing
-            // We'll handle this navigation logic in individual pages or a protected route component
-            // for better control, but for this simple flow, we can also do it here.
-            // However, let's stick to the plan of checking auth state in _layout or pages.
-        } else if (user && (segments[0] !== 'home')) {
-            // If user is signed in, redirect to home if not already there
-            // Actually, let's keep it simple. The requirement says:
-            // "If the app detects the credentials already exist in local storage, skip the login page and go directly to the home page."
+
+        if (user && segments[0] !== 'home') {
+            // If user is signed in and not in home, redirect to home
+            // This handles the "skip landing/login" requirement
+            router.replace('/home');
+        } else if (!user && segments[0] === 'home') {
+            // If user is not signed in and tries to access home, redirect to landing
+            router.replace('/');
         }
     }, [user, isLoading, segments]);
 
     const signIn = async (name: string) => {
-        const newUser = { name };
-        setUser(newUser);
-        await AsyncStorage.setItem('user', JSON.stringify(newUser));
-        router.replace('/home');
+        // Hardcoded validation
+        if (name === 'Samii') { // Password check should be done in Login component before calling this, or here.
+            // The prompt says "Login Page ... Hardcoded credentials ... If credentials are incorrect...".
+            // It's cleaner to keep the credential check in the Login component for the password specific error
+            // OR to pass password here. The current `signIn` signature only takes `name`.
+            // Let's update `signIn` to take nothing or just `name` after validation is done in UI,
+            // OR update it to validation.
+            // The existing `signIn` takes `name`.
+            // The current `login.tsx` does validity check BEFORE calling `signIn`.
+            // "if (name === 'Samii' && password === '%TGBnhy6') { await signIn(name); }"
+            // This is fine. I will keep `signIn` as just setting the user.
+
+            const newUser = { name };
+            setUser(newUser);
+            await AsyncStorage.setItem('user', JSON.stringify(newUser));
+            router.replace('/home');
+        }
     };
 
     const signOut = async () => {
@@ -77,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthContext.Provider value={{ user, signIn, signOut, isLoading }}>
-            {children}
+            {!isLoading && children}
         </AuthContext.Provider>
     );
 }
