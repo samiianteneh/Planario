@@ -48,13 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-
-
-        if (user && segments[0] !== 'home') {
-            // If user is signed in and not in home, redirect to home
-            // This handles the "skip landing/login" requirement
-            router.replace('/home');
-        } else if (!user && segments[0] === 'home') {
+        if (!user && segments[0] === 'home') {
             // If user is not signed in and tries to access home, redirect to landing
             router.replace('/');
         }

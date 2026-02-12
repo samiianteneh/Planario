@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ImageBackground, Text, TouchableOpacity, View } from 'react-native';
@@ -5,12 +6,29 @@ import { ImageBackground, Text, TouchableOpacity, View } from 'react-native';
 export default function Landing() {
   const router = useRouter();
 
+  const handleTap = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        // User is logged in, go to home
+        router.push('/home');
+      } else {
+        // No user, go to login
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Failed to check user:', error);
+      // On error, default to login
+      router.push('/login');
+    }
+  };
+
   return (
     <View className="flex-1">
       <StatusBar style="light" />
       <TouchableOpacity
         activeOpacity={1}
-        onPress={() => router.push('/login')}
+        onPress={handleTap}
         className="flex-1"
       >
         <ImageBackground
