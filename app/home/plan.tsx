@@ -1,99 +1,180 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import StatusChangeModal from '../../components/StatusChangeModal';
 
-// Mock Data based on image
-const plans = [
-    {
-        tasks: [
-            {
-                id: 1,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Achieved', // Green
-                icon: 'checkmark-circle-outline',
-                iconColor: '#22c55e', // green-500
-            },
-            {
-                id: 2,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Achieved', // Green
-                icon: 'checkmark-circle-outline',
-                iconColor: '#22c55e',
-            },
-            {
-                id: 3,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Failed', // Red
-                icon: 'close-circle-outline', // X with circle
-                iconColor: '#ef4444', // red-500
-            },
-            {
-                id: 4,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Pending', // Yellow
-                icon: 'time-outline', // Clock
-                iconColor: '#eab308', // yellow-500
-            },
-        ],
-        date: "February 12 2026, 5:32:55 PM",
-        status: "Unreported"
-    },
-    {
-        tasks: [
-            {
-                id: 1,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Achieved', // Green
-                icon: 'checkmark-circle-outline',
-                iconColor: '#22c55e', // green-500
-            },
-            {
-                id: 2,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Achieved', // Green
-                icon: 'checkmark-circle-outline',
-                iconColor: '#22c55e',
-            },
-            {
-                id: 3,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Failed', // Red
-                icon: 'close-circle-outline', // X with circle
-                iconColor: '#ef4444', // red-500
-            },
-            {
-                id: 4,
-                title: 'Task: Research competitor features',
-                associated: 'Associated KR: Complete development by Q2 end',
-                status: 'Pending', // Yellow
-                icon: 'time-outline', // Clock
-                iconColor: '#eab308', // yellow-500
-            },
-        ],
-        date: "February 11 2026, 5:32:55 PM",
-        status: "Reported"
-    }
-]
+interface Task {
+    id: number;
+    title: string;
+    status: string;
+}
 
+interface Plan {
+    tasks: Task[];
+    date: string;
+    status: string;
+    rate: number;
+
+}
 
 export default function Plan() {
     const { top } = useSafeAreaInsets();
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<{ planIndex: number; taskIndex: number } | null>(null);
+    const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        loadPlans();
+    }, []);
+
+    const loadPlans = async () => {
+        try {
+            const storedPlans = await AsyncStorage.getItem('plans');
+            if (storedPlans) {
+                try {
+                    setPlans(JSON.parse(storedPlans));
+                } catch (e) {
+                    console.error("Error parsing stored plans:", e);
+                    // Invalid JSON format in storage
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load plans:', error);
+        }
+    };
+
+    const loadDefaultPlans = async () => {
+        const defaultPlans: Plan[] = [
+            {
+                tasks: [
+                    {
+                        id: 1,
+                        title: 'Task: Research competitor features',
+                        status: 'Achieved',
+                    },
+                    {
+                        id: 2,
+                        title: 'Task: Research competitor features',
+                        status: 'Achieved',
+                    },
+                    {
+                        id: 3,
+                        title: 'Task: Research competitor features',
+                        status: 'Failed',
+                    },
+                    {
+                        id: 4,
+                        title: 'Task: Research competitor features',
+                        status: 'Pending',
+                    },
+                ],
+                date: "February 12 2026, 5:32:55 PM",
+                status: "Unreported",
+                rate: 0
+            },
+            {
+                tasks: [
+                    {
+                        id: 1,
+                        title: 'Task: Research competitor features',
+                        status: 'Achieved',
+                    },
+                    {
+                        id: 2,
+                        title: 'Task: Research competitor features',
+                        status: 'Achieved',
+                    },
+                    {
+                        id: 3,
+                        title: 'Task: Research competitor features',
+                        status: 'Failed',
+                    },
+                    {
+                        id: 4,
+                        title: 'Task: Research competitor features',
+                        status: 'Achieved',
+                    },
+                ],
+                date: "February 11 2026, 5:32:55 PM",
+                status: "Reported",
+                rate: 75
+
+            }
+        ];
+
+        try {
+            await AsyncStorage.setItem('plans', JSON.stringify(defaultPlans));
+            loadPlans();
+        } catch (e) {
+            console.error("Failed to save default plans", e);
+        }
+    };
+
+    const updateTaskStatus = async (planIndex: number, taskIndex: number, newStatus: string) => {
+        const updatedPlans = [...plans];
+        updatedPlans[planIndex].tasks[taskIndex].status = newStatus;
+
+        // Update state
+        setPlans(updatedPlans);
+
+        // Update AsyncStorage
+        try {
+            await AsyncStorage.setItem('plans', JSON.stringify(updatedPlans));
+        } catch (error) {
+            console.error('Failed to update plans:', error);
+        }
+
+        // Close modal
+        setModalVisible(false);
+        setSelectedTask(null);
+    };
+
+    const openStatusModal = (planIndex: number, taskIndex: number, event: any) => {
+        event.target.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+            setModalPosition({ x: pageX, y: pageY + height });
+            setSelectedTask({ planIndex, taskIndex });
+            setModalVisible(true);
+        });
+    };
+
     const hasUnreported: boolean = plans.some(
         (item: any) => item.status === "Unreported"
     );
+    const icon = (ststus: string) => {
+        if (ststus === 'Pending')
+            return <Ionicons name="time-outline" size={24} color="#eab308" style={{ marginTop: 2 }} />
+        if (ststus === 'Achieved')
+            return <Ionicons name="checkmark-circle-outline" size={24} color="#22c55e" style={{ marginTop: 2 }} />
+        if (ststus === 'Failed')
+            return <Ionicons name="close-circle-outline" size={24} color="#ef4444" style={{ marginTop: 2 }} />
+    }
+    const Rate = (rate: number) => {
+        if (rate >= 80)
+            return
+        <Text className="text-green-500 text-xs font-medium ml-2">{rate} %</Text>
+        if (rate >= 50 && rate < 80)
+            return <Text className="text-yellow-500 text-xs font-medium ml-2">{rate} %</Text>
+        if (rate >= 0 && rate < 50)
+            return <Text className="text-red-500 text-xs font-medium ml-2">{rate} %</Text>
+    }
+
+    const currentTaskStatus = selectedTask ? plans[selectedTask.planIndex]?.tasks[selectedTask.taskIndex]?.status : null;
 
     return (
         <View className="flex-1">
             <StatusBar style="light" />
+
+            <StatusChangeModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                currentStatus={currentTaskStatus}
+                onStatusChange={(status) => selectedTask && updateTaskStatus(selectedTask.planIndex, selectedTask.taskIndex, status)}
+                position={modalPosition}
+            />
             <ImageBackground
                 source={require('../../assets/images/landing-bg.png')}
                 className="flex-1"
@@ -125,11 +206,22 @@ export default function Plan() {
                             </View>
                             <View className="space-y-4">
 
-                                {
-                                    plans.map((plan) => (
-                                        <View className='border border-gray-100 rounded-2xl p-4'>
-                                            <View className="flex-row items-center mb-4">
+                                {plans.length === 0 ? (
+                                    <View className="py-8 items-center">
+                                        <Text className="text-gray-400 text-center mb-4">No plans found or invalid data format.</Text>
+                                        <TouchableOpacity
+                                            onPress={loadDefaultPlans}
+                                            className="bg-teal-600 px-6 py-3 rounded-xl"
+                                        >
+                                            <Text className="text-white font-bold">Load Default Plans</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    plans.map((plan, index) => (
+                                        <View key={index} className='border border-gray-100 rounded-2xl p-4'>
+                                            <View className="flex-row justify-between items-center mb-4">
                                                 <Text className="text-gray-400 text-xs font-medium ml-2">{plan.date}</Text>
+                                                {Rate(plan?.rate)}
                                             </View>
 
 
@@ -140,12 +232,12 @@ export default function Plan() {
                                                     <View key={task.id} className="border border-gray-100 rounded-2xl p-4">
                                                         <View className="flex-row justify-between items-start mb-2">
                                                             <View className="flex-row items-start flex-1 mr-2">
-                                                                <Ionicons name={task.icon as any} size={24} color={task.iconColor} style={{ marginTop: 2 }} />
+                                                                {icon(task?.status)}
                                                                 <View className="ml-3 flex-1">
                                                                     <Text className="text-gray-300 font-bold text-base mb-1">{task.title}</Text>
                                                                 </View>
                                                             </View>
-                                                            <TouchableOpacity>
+                                                            <TouchableOpacity onPress={(e) => plan.status === "Unreported" && openStatusModal(index, task.id - 1, e)}>
                                                                 {plan.status === "Unreported" ? (
                                                                     <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
                                                                 ) : ""}
@@ -156,7 +248,7 @@ export default function Plan() {
                                             </View>
                                         </View>
                                     ))
-                                }
+                                )}
                             </View>
 
                         </View>
