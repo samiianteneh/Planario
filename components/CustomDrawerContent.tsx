@@ -29,7 +29,6 @@ export default function CustomDrawerContent(props: any) {
                         </View>
                         <View>
                             <Text className="text-white text-lg font-bold">Samii</Text>
-                            <Text className="text-gray-400 text-xs">View Profile</Text>
                         </View>
                     </View>
                 </View>
