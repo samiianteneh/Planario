@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/auth';
 
 export default function CustomDrawerContent(props: any) {
-    const { signOut } = useAuth();
+    const { signOut, user } = useAuth();
     const { top, bottom } = useSafeAreaInsets();
 
     return (
@@ -28,7 +28,7 @@ export default function CustomDrawerContent(props: any) {
                             <Ionicons name="person" size={24} color="white" />
                         </View>
                         <View>
-                            <Text className="text-white text-lg font-bold">Samii</Text>
+                            <Text className="text-white text-lg font-bold">{user?.name}</Text>
                         </View>
                     </View>
                 </View>
