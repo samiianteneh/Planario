@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import EditPlanModal from '../../components/EditPlanModal';
 import StatusChangeModal from '../../components/StatusChangeModal';
 
 interface Task {
@@ -26,6 +27,9 @@ export default function Plan() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedTask, setSelectedTask] = useState<{ planIndex: number; taskIndex: number } | null>(null);
     const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+    const [editPlanModalVisible, setEditPlanModalVisible] = useState(false);
+    const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
+    const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         loadPlans();
@@ -141,6 +145,44 @@ export default function Plan() {
         });
     };
 
+    const openEditPlanModal = (planIndex: number) => {
+        setSelectedPlanIndex(planIndex);
+        setEditPlanModalVisible(true);
+    };
+
+    const handleSavePlan = async (updatedTasks: Task[]) => {
+        if (selectedPlanIndex === null) return;
+
+        const updatedPlans = [...plans];
+        updatedPlans[selectedPlanIndex].tasks = updatedTasks;
+
+        // Update state
+        setPlans(updatedPlans);
+
+        // Update AsyncStorage
+        try {
+            await AsyncStorage.setItem('plans', JSON.stringify(updatedPlans));
+        } catch (error) {
+            console.error('Failed to update plans:', error);
+        }
+
+        setEditPlanModalVisible(false);
+        setSelectedPlanIndex(null);
+    };
+
+    const toggleTaskExpansion = (planIndex: number, taskId: number) => {
+        const key = `${planIndex}-${taskId}`;
+        setExpandedTasks(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(key)) {
+                newSet.delete(key);
+            } else {
+                newSet.add(key);
+            }
+            return newSet;
+        });
+    };
+
     const hasUnreported: boolean = plans.some(
         (item: any) => item.status === "Unreported"
     );
@@ -167,6 +209,13 @@ export default function Plan() {
     return (
         <View className="flex-1">
             <StatusBar style="light" />
+
+            <EditPlanModal
+                visible={editPlanModalVisible}
+                onClose={() => setEditPlanModalVisible(false)}
+                tasks={selectedPlanIndex !== null ? plans[selectedPlanIndex]?.tasks || [] : []}
+                onSave={handleSavePlan}
+            />
 
             <StatusChangeModal
                 visible={modalVisible}
@@ -221,7 +270,13 @@ export default function Plan() {
                                         <View key={index} className='border border-gray-100 rounded-2xl p-4'>
                                             <View className="flex-row justify-between items-center mb-4">
                                                 <Text className="text-gray-400 text-xs font-medium ml-2">{plan.date}</Text>
-                                                {Rate(plan?.rate)}
+                                                {plan.status == "Unreported"
+                                                    ?
+                                                    <TouchableOpacity onPress={() => openEditPlanModal(index)}>
+                                                        <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
+                                                    </TouchableOpacity>
+                                                    :
+                                                    Rate(plan?.rate)}
                                             </View>
 
 
@@ -231,12 +286,21 @@ export default function Plan() {
                                                 {plan.tasks.map((task) => (
                                                     <View key={task.id} className="border border-gray-100 rounded-2xl p-4">
                                                         <View className="flex-row justify-between items-start mb-2">
-                                                            <View className="flex-row items-start flex-1 mr-2">
+                                                            <TouchableOpacity
+                                                                className="flex-row items-start flex-1 mr-2"
+                                                                onPress={() => toggleTaskExpansion(index, task.id)}
+                                                                activeOpacity={0.7}
+                                                            >
                                                                 {icon(task?.status)}
                                                                 <View className="ml-3 flex-1">
-                                                                    <Text className="text-gray-300 font-bold text-base mb-1">{task.title}</Text>
+                                                                    <Text
+                                                                        className="text-gray-300 text-base mb-1"
+                                                                        numberOfLines={expandedTasks.has(`${index}-${task.id}`) ? undefined : 2}
+                                                                    >
+                                                                        {task.title}
+                                                                    </Text>
                                                                 </View>
-                                                            </View>
+                                                            </TouchableOpacity>
                                                             <TouchableOpacity onPress={(e) => plan.status === "Unreported" && openStatusModal(index, task.id - 1, e)}>
                                                                 {plan.status === "Unreported" ? (
                                                                     <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
