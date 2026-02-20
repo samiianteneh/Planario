@@ -4,8 +4,9 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Alert, ImageBackground, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from '../../../components/Toast';
 
 export default function ReportPeriodSetting() {
     const { top } = useSafeAreaInsets();
@@ -13,6 +14,11 @@ export default function ReportPeriodSetting() {
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(Platform.OS === 'ios');
     const [isLoading, setIsLoading] = useState(true);
+    const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as const });
+
+    const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+        setToast({ visible: true, message, type });
+    };
 
     const formatTime = (date: Date) => {
         let hours = date.getHours();
@@ -61,11 +67,10 @@ export default function ReportPeriodSetting() {
         const timeStr = formatTime(date);
         try {
             await AsyncStorage.setItem('report_alert_time', timeStr);
-            Alert.alert("Success", `Report alert set for ${timeStr}`, [
-                { text: "OK", onPress: () => router.back() }
-            ]);
+            showToast(`Report alert set for ${timeStr}`, "success");
+            setTimeout(() => router.back(), 2000);
         } catch (e) {
-            Alert.alert("Error", "Failed to save settings.");
+            showToast("Failed to save settings", "error");
         }
     };
 
@@ -159,6 +164,13 @@ export default function ReportPeriodSetting() {
                     </TouchableOpacity>
                 </View>
             </ImageBackground>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                onDismiss={() => setToast(p => ({ ...p, visible: false }))}
+            />
         </View>
     );
 }
