@@ -40,6 +40,27 @@ export default function Setting() {
         );
     };
 
+    const resetData = () => {
+        Alert.alert(
+            "Reset Data",
+            "This will reset all your data. Are you sure?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Reset",
+                    onPress: async () => {
+                        try {
+                            await AsyncStorage.removeItem('plans');
+                            Alert.alert("Success", "Data has been reset.");
+                        } catch (e) {
+                            Alert.alert("Error", "Failed to reset data.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const SettingItem = ({ title, icon, onPres, color = "text-white" }: { title: string, icon: any, onPres: () => void, color?: string }) => (
         <TouchableOpacity
             onPress={onPres}
@@ -100,6 +121,12 @@ export default function Setting() {
                                 icon="cloud-download-outline"
                                 onPres={loadDefaultPlans}
                                 color="text-teal-400"
+                            />
+                            <SettingItem
+                                title="Reset Data"
+                                icon="trash-outline"
+                                onPres={resetData}
+                                color="text-red-400"
                             />
                         </View>
 
