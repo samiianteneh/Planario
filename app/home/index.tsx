@@ -123,7 +123,7 @@ export default function Dashboard() {
                     {/* Header */}
                     <View className="mb-8 pl-12">
                         <Text className="text-white/60 text-lg">Your Progress</Text>
-                        <Text className="text-white text-3xl font-bold">Dashboard</Text>
+                        {/* <Text className="text-white text-3xl font-bold">Dashboard</Text> */}
                     </View>
 
                     {/* Circular Score Highlight */}
@@ -170,7 +170,7 @@ export default function Dashboard() {
                         />
                     </View>
 
-                    <View className="flex-row gap-4 mb-6">
+                    {/* <View className="flex-row gap-4 mb-6">
                         <StatCard
                             title="Total Tasks"
                             value={stats.achievedTasks}
@@ -183,7 +183,7 @@ export default function Dashboard() {
                             icon="calendar-outline"
                             color="#a855f7"
                         />
-                    </View>
+                    </View> */}
 
                     {/* Summary Card */}
                     <View className="bg-white/10 p-6 rounded-3xl border border-white/5">
@@ -192,13 +192,19 @@ export default function Dashboard() {
                         <View className="space-y-4">
                             <View>
                                 <View className="flex-row justify-between mb-2">
-                                    <Text className="text-white/70 text-sm">Achieved vs Total Tasks</Text>
-                                    <Text className="text-white font-medium">{stats.achievedTasks}/{stats.totalTasks}</Text>
+                                    <Text className="text-white/70 text-sm">Status: Achieved vs Failed</Text>
+                                    <Text className="text-white font-medium">
+                                        {stats.achievedTasks} <Text className="text-green-500">A</Text> / {stats.failedTasks} <Text className="text-red-500">F</Text> / {stats.totalTasks} <Text className="text-white/50">T</Text>
+                                    </Text>
                                 </View>
-                                <View className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                <View className="h-3 bg-gray-400 rounded-full overflow-hidden flex-row">
                                     <View
-                                        className="h-full bg-teal-500"
+                                        className="h-full bg-green-500"
                                         style={{ width: `${stats.totalTasks > 0 ? (stats.achievedTasks / stats.totalTasks) * 100 : 0}%` }}
+                                    />
+                                    <View
+                                        className="h-full bg-red-500"
+                                        style={{ width: `${stats.totalTasks > 0 ? (stats.failedTasks / stats.totalTasks) * 100 : 0}%` }}
                                     />
                                 </View>
                             </View>
