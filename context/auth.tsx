@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const filteredPlans = plans.filter((plan: any) => {
                 if (!plan || !plan.date) return false;
 
-                const planDate = new Date(plan.date);
+                const planDate = new Date(plan.date.replace(' at ', ' '));
                 if (isNaN(planDate.getTime())) return false;
 
                 // Normalize plan date to start of its day
