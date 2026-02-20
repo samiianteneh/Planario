@@ -8,17 +8,22 @@ export default function Landing() {
 
   const handleTap = async () => {
     try {
+      const storedAccount = await AsyncStorage.getItem('account');
       const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        // User is logged in, go to home
-        router.push('/home');
-      } else {
-        // No user, go to login
+
+      if (!storedAccount) {
+        // Case A: No Account Exists
+        router.push('/register');
+      } else if (!storedUser) {
+        // Case B: Account Exists but No Active User
         router.push('/login');
+      } else {
+        // Case C: Account and User Exist
+        // Plan Analysis will be executed by AuthContext upon entering Home (redirected)
+        router.push('/home');
       }
     } catch (error) {
-      console.error('Failed to check user:', error);
-      // On error, default to login
+      console.error('Failed to check auth state:', error);
       router.push('/login');
     }
   };

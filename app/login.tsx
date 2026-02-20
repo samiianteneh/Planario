@@ -19,7 +19,7 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [nameError, setNameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
-    const { signIn } = useAuth();
+    const { login } = useAuth();
     const router = useRouter();
 
     const handleLogin = async () => {
@@ -41,19 +41,13 @@ export default function Login() {
 
         if (!isValid) return;
 
-        if (name === 'Samii' && password === '%TGBnhy6') {
-            await signIn(name);
-        } else {
-            // Determine which one is wrong or both
-            // The prompt says: "incorect name, pr incorect password"
-            // Since we don't have a backend to tell us which one, and for security it's usually better to be vague,
-            // BUT the user specifically asked for "Incorrect Name" or "Incorrect Password".
-            // Since I have hardcoded credentials, I can know EXACTLY which one is wrong.
-
-            if (name !== 'Samii') {
-                setNameError('Incorrect Name');
-            } else if (password !== '%TGBnhy6') {
-                setPasswordError('Incorrect Password');
+        const error = await login(name, password);
+        if (error) {
+            // The login function in AuthContext returns a string error or null
+            if (error === 'No account found') {
+                setNameError('No account found');
+            } else {
+                setPasswordError('Invalid credentials');
             }
         }
     };
