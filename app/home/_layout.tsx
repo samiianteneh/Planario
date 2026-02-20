@@ -54,10 +54,10 @@ export default function HomeLayout() {
                     }}
                 />
                 <Drawer.Screen
-                    name="setting"
+                    name="setting/index"
                     options={{
-                        drawerLabel: 'Setting',
-                        title: 'Setting',
+                        drawerLabel: 'Settings',
+                        title: 'Settings',
                         drawerIcon: ({ color, size }) => (
                             <Ionicons name="settings-outline" size={size} color={color} />
                         ),

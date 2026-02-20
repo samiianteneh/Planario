@@ -5,7 +5,7 @@ export default function Setting() {
     return (
         <View className="flex-1">
             <ImageBackground
-                source={require('../../assets/images/landing-bg.png')}
+                source={require('../../../assets/images/landing-bg.png')}
                 className="flex-1"
                 resizeMode="cover"
                 blurRadius={5}
