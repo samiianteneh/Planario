@@ -1,27 +1,52 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { Alert, ImageBackground, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, ImageBackground, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ReportPeriodSetting() {
     const { top } = useSafeAreaInsets();
     const router = useRouter();
-    const [selectedPeriod, setSelectedPeriod] = useState('Evening (8 PM)');
+    const [selectedTime, setSelectedTime] = useState('08:00 PM');
+    const [isLoading, setIsLoading] = useState(true);
 
-    const periods = [
-        'Evening (6 PM)',
-        'Evening (8 PM)',
-        'Late Night (10 PM)',
-        'Next Morning (8 AM)'
-    ];
+    useEffect(() => {
+        const loadSavedTime = async () => {
+            try {
+                const savedTime = await AsyncStorage.getItem('report_alert_time');
+                if (savedTime) {
+                    setSelectedTime(savedTime);
+                }
+            } catch (e) {
+                console.error('Failed to load report alert time', e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadSavedTime();
+    }, []);
 
-    const handleSave = () => {
-        Alert.alert("Success", `Report alert set for ${selectedPeriod}`, [
-            { text: "OK", onPress: () => router.back() }
-        ]);
+    const handleSave = async () => {
+        // Basic time validation (HH:MM AM/PM)
+        const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
+        if (!timeRegex.test(selectedTime)) {
+            Alert.alert("Invalid Format", "Please enter time in HH:MM AM/PM format (e.g., 08:00 PM)");
+            return;
+        }
+
+        try {
+            await AsyncStorage.setItem('report_alert_time', selectedTime);
+            Alert.alert("Success", `Report alert set for ${selectedTime.toUpperCase()}`, [
+                { text: "OK", onPress: () => router.back() }
+            ]);
+        } catch (e) {
+            Alert.alert("Error", "Failed to save settings.");
+        }
     };
+
+    if (isLoading) return null;
 
     return (
         <View className="flex-1">
@@ -37,29 +62,24 @@ export default function ReportPeriodSetting() {
                         <Text className="text-white text-3xl font-bold">Report Period</Text>
                     </View>
 
-                    <Text className="text-white/60 text-base mb-6 px-1">
-                        When should we remind you to report your daily progress?
-                    </Text>
-
-                    <View className="space-y-3">
-                        {periods.map((period) => (
-                            <TouchableOpacity
-                                key={period}
-                                onPress={() => setSelectedPeriod(period)}
-                                className={`flex-row items-center justify-between p-5 rounded-2xl border ${selectedPeriod === period
-                                    ? 'bg-purple-600/20 border-purple-500'
-                                    : 'bg-white/5 border-white/5'
-                                    }`}
-                            >
-                                <Text className={`text-lg ${selectedPeriod === period ? 'text-purple-400 font-bold' : 'text-white'}`}>
-                                    {period}
-                                </Text>
-                                {selectedPeriod === period && (
-                                    <Ionicons name="checkmark-circle" size={24} color="#a855f7" />
-                                )}
-                            </TouchableOpacity>
-                        ))}
+                    <Text className="text-white/60 text-sm mb-2 ml-1">Manual Time Entry</Text>
+                    <View className="relative mb-8">
+                        <TextInput
+                            placeholder="e.g., 08:00 PM"
+                            placeholderTextColor="rgba(255,255,255,0.3)"
+                            className="bg-white/5 border border-white/10 p-5 rounded-2xl text-white text-xl font-bold text-center"
+                            value={selectedTime}
+                            onChangeText={setSelectedTime}
+                            autoCapitalize="characters"
+                        />
+                        <View className="absolute left-5 top-5">
+                            <Ionicons name="notifications-outline" size={24} color="#a855f7" />
+                        </View>
                     </View>
+
+                    <Text className="text-white/40 text-xs leading-relaxed px-1">
+                        Enter your preferred time for daily progress reporting reminders. Format should be HH:MM AM/PM.
+                    </Text>
 
                     <TouchableOpacity
                         onPress={handleSave}
