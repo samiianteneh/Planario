@@ -63,6 +63,24 @@ export default function HomeLayout() {
                         ),
                     }}
                 />
+                <Drawer.Screen
+                    name="setting/password"
+                    options={{
+                        drawerItemStyle: { display: 'none' },
+                    }}
+                />
+                <Drawer.Screen
+                    name="setting/plan-time"
+                    options={{
+                        drawerItemStyle: { display: 'none' },
+                    }}
+                />
+                <Drawer.Screen
+                    name="setting/report-period"
+                    options={{
+                        drawerItemStyle: { display: 'none' },
+                    }}
+                />
             </Drawer>
         </GestureHandlerRootView>
     );
