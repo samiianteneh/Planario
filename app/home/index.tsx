@@ -26,6 +26,9 @@ export default function Dashboard() {
         totalPlans: 0,
         totalTasks: 0,
         achievedTasks: 0,
+        failedTasks: 0,
+        achieveRate: 0,
+        failRate: 0,
         highestRate: 0,
         lowestRate: 100,
         reportedCount: 0,
@@ -50,6 +53,7 @@ export default function Dashboard() {
                     let totalRate = 0;
                     let totalTasks = 0;
                     let achievedTasks = 0;
+                    let failedTasks = 0;
                     let highest = 0;
                     let lowest = 100;
 
@@ -57,6 +61,7 @@ export default function Dashboard() {
                         totalRate += plan.rate;
                         totalTasks += plan.tasks.length;
                         achievedTasks += plan.tasks.filter(t => t.status === 'Achieved').length;
+                        failedTasks += plan.tasks.filter(t => t.status === 'Failed').length;
                         if (plan.rate > highest) highest = plan.rate;
                         if (plan.rate < lowest) lowest = plan.rate;
                     });
@@ -66,6 +71,9 @@ export default function Dashboard() {
                         totalPlans: plans.length,
                         totalTasks,
                         achievedTasks,
+                        failedTasks,
+                        achieveRate: totalTasks > 0 ? Math.round((achievedTasks / totalTasks) * 100) : 0,
+                        failRate: totalTasks > 0 ? Math.round((failedTasks / totalTasks) * 100) : 0,
                         highestRate: highest,
                         lowestRate: lowest,
                         reportedCount: reportedPlans.length,
@@ -134,13 +142,28 @@ export default function Dashboard() {
                     {/* Stats Grid */}
                     <View className="flex-row gap-4 mb-4">
                         <StatCard
-                            title="Highest"
+                            title="Achieve Rate"
+                            value={`${stats.achieveRate}%`}
+                            icon="shield-checkmark-outline"
+                            color="#22c55e"
+                        />
+                        <StatCard
+                            title="Failed Rate"
+                            value={`${stats.failRate}%`}
+                            icon="close-circle-outline"
+                            color="#ef4444"
+                        />
+                    </View>
+
+                    <View className="flex-row gap-4 mb-4">
+                        <StatCard
+                            title="Highest Score"
                             value={`${stats.highestRate}%`}
                             icon="trending-up-outline"
                             color="#22c55e"
                         />
                         <StatCard
-                            title="Lowest"
+                            title="Lowest Score"
                             value={`${stats.lowestRate === 100 && stats.reportedCount === 0 ? 0 : stats.lowestRate}%`}
                             icon="trending-down-outline"
                             color="#ef4444"
@@ -149,7 +172,7 @@ export default function Dashboard() {
 
                     <View className="flex-row gap-4 mb-6">
                         <StatCard
-                            title="Tasks Done"
+                            title="Total Tasks"
                             value={stats.achievedTasks}
                             icon="checkmark-done-circle-outline"
                             color="#06b6d4"
