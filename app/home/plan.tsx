@@ -268,13 +268,16 @@ export default function Plan() {
             return <Ionicons name="close-circle-outline" size={24} color="#ef4444" style={{ marginTop: 2 }} />
     }
     const Rate = (rate: number) => {
-        if (rate >= 80)
-            return
-        <Text className="text-green-500 text-xs font-medium ml-2">{rate} %</Text>
-        if (rate >= 50 && rate < 80)
-            return <Text className="text-yellow-500 text-xs font-medium ml-2">{rate} %</Text>
-        if (rate >= 0 && rate < 50)
-            return <Text className="text-red-500 text-xs font-medium ml-2">{rate} %</Text>
+        if (rate >= 80) {
+            return <Text className="text-green-500 text-xs font-medium ml-2">{rate} %</Text>;
+        }
+        else if (rate >= 50 && rate < 80) {
+            return <Text className="text-yellow-500 text-xs font-medium ml-2">{rate} %</Text>;
+        }
+        else if (rate >= 0 && rate < 50) {
+            return <Text className="text-red-500 text-xs font-medium ml-2">{rate} %</Text>;
+        }
+        else { return }
     }
 
     const currentTaskStatus = selectedTask ? plans[selectedTask.planIndex]?.tasks[selectedTask.taskIndex]?.status : null;
@@ -321,7 +324,7 @@ export default function Plan() {
                     {/* Header */}
                     <View className="flex-row justify-between items-center mb-6 pl-12">
                         {/* pl-12 to avoid overlap with menu button from layout */}
-                        <Text className="text-white text-3xl font-bold">Plan</Text>
+                        <Text className="text-white text-3xl font-bold">Plans</Text>
 
 
                     </View>
