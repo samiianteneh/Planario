@@ -16,6 +16,7 @@ type AuthContextType = {
     account: Account;
     register: (name: string, password: string) => Promise<void>;
     login: (name: string, password: string) => Promise<string | null>;
+    updatePassword: (newPassword: string) => Promise<void>;
     signOut: () => Promise<void>;
     isLoading: boolean;
 };
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType>({
     account: null,
     register: async () => { },
     login: async () => { return null; },
+    updatePassword: async () => { },
     signOut: async () => { },
     isLoading: true,
 });
@@ -151,6 +153,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const updatePassword = async (newPassword: string) => {
+        if (!account) return;
+
+        const updatedAccount = { ...account, password: newPassword };
+        await AsyncStorage.setItem('account', JSON.stringify(updatedAccount));
+        setAccount(updatedAccount);
+    };
+
     const signOut = async () => {
         setUser(null);
         await AsyncStorage.removeItem('user');
@@ -158,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, account, register, login, signOut, isLoading }}>
+        <AuthContext.Provider value={{ user, account, register, login, updatePassword, signOut, isLoading }}>
             {!isLoading && children}
         </AuthContext.Provider>
     );
