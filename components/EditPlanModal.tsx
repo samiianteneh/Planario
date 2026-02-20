@@ -24,10 +24,12 @@ export default function EditPlanModal({
     const [editedTasks, setEditedTasks] = useState<Task[]>(tasks);
     const scrollViewRef = useRef<ScrollView>(null);
 
-    // Update local state when tasks prop changes
+    // Update local state when tasks prop changes OR when modal becomes visible
     React.useEffect(() => {
-        setEditedTasks(tasks);
-    }, [tasks]);
+        if (visible) {
+            setEditedTasks(tasks);
+        }
+    }, [tasks, visible]);
 
     const updateTaskTitle = (index: number, newTitle: string) => {
         const updated = [...editedTasks];
@@ -56,7 +58,11 @@ export default function EditPlanModal({
     };
 
     const handleSave = () => {
-        onSave(editedTasks);
+        // Filter out empty tasks and check if any valid tasks exist
+        const validTasks = editedTasks.filter(task => task.title.trim() !== '');
+        if (validTasks.length === 0) return;
+
+        onSave(validTasks);
         onClose();
     };
 

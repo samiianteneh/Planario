@@ -375,7 +375,7 @@ export default function Plan() {
                                                 {plan.status == "Unreported"
                                                     ?
                                                     <TouchableOpacity onPress={() => openEditPlanModal(index)}>
-                                                        <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
+                                                        <Ionicons name="create-outline" size={20} color="#9ca3af" />
                                                     </TouchableOpacity>
                                                     :
                                                     Rate(plan?.rate)}
@@ -405,7 +405,7 @@ export default function Plan() {
                                                             </TouchableOpacity>
                                                             <TouchableOpacity onPress={(e) => plan.status === "Unreported" && openStatusModal(index, task.id - 1, e)}>
                                                                 {plan.status === "Unreported" ? (
-                                                                    <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
+                                                                    <Ionicons name="options-outline" size={20} color="#9ca3af" />
                                                                 ) : ""}
                                                             </TouchableOpacity>
                                                         </View>

@@ -58,7 +58,7 @@ export default function PlanModal({
     };
 
     const handleSave = () => {
-        // Filter out empty tasks
+        // Filter out empty tasks and check if any valid tasks exist
         const validTasks = tasks.filter(task => task.title.trim() !== '');
         if (validTasks.length === 0) return;
 
