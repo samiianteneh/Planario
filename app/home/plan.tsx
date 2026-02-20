@@ -56,72 +56,7 @@ export default function Plan() {
         }
     };
 
-    const loadDefaultPlans = async () => {
-        const defaultPlans: Plan[] = [
-            {
-                tasks: [
-                    {
-                        id: 1,
-                        title: 'Task: Research competitor features',
-                        status: 'Achieved',
-                    },
-                    {
-                        id: 2,
-                        title: 'Task: Research competitor features',
-                        status: 'Achieved',
-                    },
-                    {
-                        id: 3,
-                        title: 'Task: Research competitor features',
-                        status: 'Failed',
-                    },
-                    {
-                        id: 4,
-                        title: 'Task: Research competitor features',
-                        status: 'Pending',
-                    },
-                ],
-                date: "February 12 2026, 5:32:55 PM",
-                status: "Unreported",
-                rate: 0
-            },
-            {
-                tasks: [
-                    {
-                        id: 1,
-                        title: 'Task: Research competitor features',
-                        status: 'Achieved',
-                    },
-                    {
-                        id: 2,
-                        title: 'Task: Research competitor features',
-                        status: 'Achieved',
-                    },
-                    {
-                        id: 3,
-                        title: 'Task: Research competitor features',
-                        status: 'Failed',
-                    },
-                    {
-                        id: 4,
-                        title: 'Task: Research competitor features',
-                        status: 'Achieved',
-                    },
-                ],
-                date: "February 11 2026, 5:32:55 PM",
-                status: "Reported",
-                rate: 75
 
-            }
-        ];
-
-        try {
-            await AsyncStorage.setItem('plans', JSON.stringify(defaultPlans));
-            loadPlans();
-        } catch (e) {
-            console.error("Failed to save default plans", e);
-        }
-    };
 
     const updateTaskStatus = async (planIndex: number, taskIndex: number, newStatus: string) => {
         const updatedPlans = [...plans];
@@ -362,13 +297,7 @@ export default function Plan() {
 
                                 {plans.length === 0 ? (
                                     <View className="py-8 items-center">
-                                        <Text className="text-gray-400 text-center mb-4">No plans found or invalid data format.</Text>
-                                        <TouchableOpacity
-                                            onPress={loadDefaultPlans}
-                                            className="bg-teal-600 px-6 py-3 rounded-xl"
-                                        >
-                                            <Text className="text-white font-bold">Load Default Plans</Text>
-                                        </TouchableOpacity>
+                                        <Text className="text-gray-400 text-center mb-4">No plans found. Go to Settings to load default plans.</Text>
                                     </View>
                                 ) : (
                                     plans.map((plan, index) => (
