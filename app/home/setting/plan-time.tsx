@@ -85,42 +85,70 @@ export default function PlanTimeSetting() {
                         <Text className="text-white text-3xl font-bold">Reminder Time</Text>
                     </View>
 
-                    <Text className="text-white/60 text-sm mb-4 ml-1">Select Time</Text>
+                    <View className="flex-1 justify-center pb-20">
+                        <Text className="text-white/60 text-sm mb-4 text-center uppercase tracking-widest">Select Time</Text>
 
-                    <View className="bg-white/5 border border-white/10 p-6 rounded-3xl items-center mb-6">
-                        {Platform.OS === 'android' && (
-                            <TouchableOpacity
-                                onPress={() => setShowPicker(true)}
-                                className="flex-row items-center bg-teal-600/20 px-6 py-4 rounded-2xl border border-teal-500/50"
-                            >
-                                <Ionicons name="time-outline" size={24} color="#2dd4bf" className="mr-3" />
-                                <Text className="text-white text-2xl font-bold ml-2">
-                                    {formatTime(date)}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
+                        <View className="bg-white/5 border border-white/10 p-8 rounded-[40px] items-center mb-8 shadow-2xl">
+                            {Platform.OS === 'web' ? (
+                                <View className="items-center w-full">
+                                    <View className="w-full max-w-[200px]">
+                                        <input
+                                            type="time"
+                                            value={date.toTimeString().slice(0, 5)}
+                                            onChange={(e) => {
+                                                const [hours, minutes] = e.target.value.split(':');
+                                                const newDate = new Date(date);
+                                                newDate.setHours(parseInt(hours), parseInt(minutes));
+                                                setDate(newDate);
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                padding: '12px',
+                                                borderRadius: '12px',
+                                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                color: 'white',
+                                                fontSize: '18px',
+                                                textAlign: 'center',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                    </View>
+                                </View>
+                            ) : Platform.OS === 'android' ? (
+                                <TouchableOpacity
+                                    onPress={() => setShowPicker(true)}
+                                    className="flex-row items-center bg-teal-600/20 px-8 py-5 rounded-2xl border border-teal-500/50"
+                                >
+                                    <Ionicons name="time-outline" size={28} color="#2dd4bf" />
+                                    <Text className="text-white text-3xl font-bold ml-3">
+                                        {formatTime(date)}
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : null}
 
-                        {showPicker && (
-                            <DateTimePicker
-                                value={date}
-                                mode="time"
-                                is24Hour={false}
-                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                onChange={onChange}
-                                textColor="white"
-                                themeVariant="dark"
-                                style={{ height: 200, width: '100%' }}
-                            />
-                        )}
+                            {showPicker && Platform.OS !== 'web' && (
+                                <DateTimePicker
+                                    value={date}
+                                    mode="time"
+                                    is24Hour={false}
+                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                    onChange={onChange}
+                                    textColor="white"
+                                    themeVariant="dark"
+                                    style={{ height: 220, width: '100%' }}
+                                />
+                            )}
+                        </View>
+
+                        <Text className="text-white/40 text-sm leading-relaxed px-10 text-center">
+                            Set your daily notification time to stay consistent with your goals.
+                        </Text>
                     </View>
-
-                    <Text className="text-white/40 text-xs leading-relaxed px-4 text-center">
-                        Set the daily notification time to prep for your goals.
-                    </Text>
 
                     <TouchableOpacity
                         onPress={handleSave}
-                        className="bg-teal-600 p-5 rounded-2xl mt-auto mb-10 items-center"
+                        className="bg-teal-600 p-5 rounded-2xl mb-10 items-center shadow-lg active:opacity-80"
                     >
                         <Text className="text-white font-bold text-lg">Save Preference</Text>
                     </TouchableOpacity>
