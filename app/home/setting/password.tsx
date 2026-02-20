@@ -77,11 +77,8 @@ export default function PasswordChange() {
                 blurRadius={5}
             >
                 <View style={{ paddingTop: top + 20, paddingHorizontal: 20 }} className="flex-1">
-                    <View className="flex-row items-center mb-8">
-                        <TouchableOpacity onPress={() => router.back()} className="bg-white/10 p-2 rounded-full mr-4">
-                            <Ionicons name="arrow-back" size={24} color="white" />
-                        </TouchableOpacity>
-                        <Text className="text-white text-2xl font-bold">Change Password</Text>
+                    <View className="mb-8 pl-12">
+                        <Text className="text-white text-3xl font-bold">Change Password</Text>
                     </View>
 
                     <View className="space-y-4">

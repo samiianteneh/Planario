@@ -28,11 +28,8 @@ export default function PlanTimeSetting() {
                 blurRadius={5}
             >
                 <View style={{ paddingTop: top + 20, paddingHorizontal: 20 }} className="flex-1">
-                    <View className="flex-row items-center mb-8">
-                        <TouchableOpacity onPress={() => router.back()} className="bg-white/10 p-2 rounded-full mr-4">
-                            <Ionicons name="arrow-back" size={24} color="white" />
-                        </TouchableOpacity>
-                        <Text className="text-white text-2xl font-bold">Reminder Time</Text>
+                    <View className="mb-8 pl-12">
+                        <Text className="text-white text-3xl font-bold">Reminder Time</Text>
                     </View>
 
                     <Text className="text-white/60 text-base mb-6 px-1">
@@ -45,8 +42,8 @@ export default function PlanTimeSetting() {
                                 key={time}
                                 onPress={() => setSelectedTime(time)}
                                 className={`flex-row items-center justify-between p-5 rounded-2xl border ${selectedTime === time
-                                        ? 'bg-teal-600/20 border-teal-500'
-                                        : 'bg-white/5 border-white/5'
+                                    ? 'bg-teal-600/20 border-teal-500'
+                                    : 'bg-white/5 border-white/5'
                                     }`}
                             >
                                 <Text className={`text-lg ${selectedTime === time ? 'text-teal-400 font-bold' : 'text-white'}`}>

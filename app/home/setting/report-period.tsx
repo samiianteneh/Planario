@@ -33,11 +33,8 @@ export default function ReportPeriodSetting() {
                 blurRadius={5}
             >
                 <View style={{ paddingTop: top + 20, paddingHorizontal: 20 }} className="flex-1">
-                    <View className="flex-row items-center mb-8">
-                        <TouchableOpacity onPress={() => router.back()} className="bg-white/10 p-2 rounded-full mr-4">
-                            <Ionicons name="arrow-back" size={24} color="white" />
-                        </TouchableOpacity>
-                        <Text className="text-white text-2xl font-bold">Report Period</Text>
+                    <View className="mb-8 pl-12">
+                        <Text className="text-white text-3xl font-bold">Report Period</Text>
                     </View>
 
                     <Text className="text-white/60 text-base mb-6 px-1">
@@ -50,8 +47,8 @@ export default function ReportPeriodSetting() {
                                 key={period}
                                 onPress={() => setSelectedPeriod(period)}
                                 className={`flex-row items-center justify-between p-5 rounded-2xl border ${selectedPeriod === period
-                                        ? 'bg-purple-600/20 border-purple-500'
-                                        : 'bg-white/5 border-white/5'
+                                    ? 'bg-purple-600/20 border-purple-500'
+                                    : 'bg-white/5 border-white/5'
                                     }`}
                             >
                                 <Text className={`text-lg ${selectedPeriod === period ? 'text-purple-400 font-bold' : 'text-white'}`}>
