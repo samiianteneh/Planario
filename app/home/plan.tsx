@@ -269,7 +269,7 @@ export default function Plan() {
                         <View className="rounded-3xl p-5 mb-6 shadow-sm">
                             {/* Plan Header */}
                             <View className="flex-row justify-between items-center mb-1">
-                                <Text className="text-white text-lg font-bold">Plan</Text>
+                                <Text className="text-white text-lg font-bold"></Text>
 
                                 {plans.some(p => p.status === "Unreported") ? (
                                     <TouchableOpacity
