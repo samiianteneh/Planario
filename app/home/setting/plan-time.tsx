@@ -125,6 +125,11 @@ export default function PlanTimeSetting() {
                                         {formatTime(date)}
                                     </Text>
                                 </TouchableOpacity>
+                            ) : Platform.OS === 'ios' ? (
+                                <View className="flex-row items-center mb-4 opacity-60">
+                                    <Ionicons name="time-outline" size={20} color="#2dd4bf" />
+                                    <Text className="text-white text-sm font-medium ml-2">Adjust with wheel below</Text>
+                                </View>
                             ) : null}
 
                             {showPicker && Platform.OS !== 'web' && (
