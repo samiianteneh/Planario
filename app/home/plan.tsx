@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import EditPlanModal from '../../components/EditPlanModal';
+import PlanModal from '../../components/PlanModal';
+import ReportModal from '../../components/ReportModal';
 import StatusChangeModal from '../../components/StatusChangeModal';
 
 interface Task {
@@ -30,6 +32,9 @@ export default function Plan() {
     const [editPlanModalVisible, setEditPlanModalVisible] = useState(false);
     const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
     const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+    const [reportModalVisible, setReportModalVisible] = useState(false);
+    const [reporPlanVisible, setPlanModalVisible] = useState(false);
+    const [reportPlanIndex, setReportPlanIndex] = useState<number | null>(null);
 
     useEffect(() => {
         loadPlans();
@@ -183,6 +188,74 @@ export default function Plan() {
         });
     };
 
+    const openReportModal = (planIndex: number) => {
+        setReportPlanIndex(planIndex);
+        setReportModalVisible(true);
+    };
+    const openPlanModal = () => {
+        setPlanModalVisible(true);
+    };
+
+    const handleReport = async (updatedTasks: Task[]) => {
+        if (reportPlanIndex === null) return;
+
+        const updatedPlans = [...plans];
+        updatedPlans[reportPlanIndex].tasks = updatedTasks;
+        updatedPlans[reportPlanIndex].status = 'Reported';
+
+        // Calculate rate: (achieved tasks / total tasks) * 100
+        const achievedCount = updatedTasks.filter(task => task.status === 'Achieved').length;
+        const totalCount = updatedTasks.length;
+        const rate = totalCount > 0 ? Math.round((achievedCount / totalCount) * 100) : 0;
+        updatedPlans[reportPlanIndex].rate = rate;
+
+        // Update state
+        setPlans(updatedPlans);
+
+        // Update AsyncStorage
+        try {
+            await AsyncStorage.setItem('plans', JSON.stringify(updatedPlans));
+        } catch (error) {
+            console.error('Failed to update plans:', error);
+        }
+
+        setReportModalVisible(false);
+        setReportPlanIndex(null);
+    };
+
+    const handlePlan = async (newTasks: Task[]) => {
+        // Create new plan with current date
+        const now = new Date();
+        const formattedDate = now.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+
+        const newPlan: Plan = {
+            tasks: newTasks,
+            date: formattedDate,
+            status: 'Unreported',
+            rate: 0
+        };
+
+        const updatedPlans = [newPlan, ...plans];
+        setPlans(updatedPlans);
+
+        // Save to AsyncStorage
+        try {
+            await AsyncStorage.setItem('plans', JSON.stringify(updatedPlans));
+        } catch (error) {
+            console.error('Failed to save new plan:', error);
+        }
+
+        setPlanModalVisible(false);
+    };
+
     const hasUnreported: boolean = plans.some(
         (item: any) => item.status === "Unreported"
     );
@@ -210,6 +283,18 @@ export default function Plan() {
         <View className="flex-1">
             <StatusBar style="light" />
 
+            <ReportModal
+                visible={reportModalVisible}
+                onClose={() => setReportModalVisible(false)}
+                tasks={reportPlanIndex !== null ? plans[reportPlanIndex]?.tasks || [] : []}
+                onReport={handleReport}
+            />
+            <PlanModal
+                visible={reporPlanVisible}
+                onClose={() => setPlanModalVisible(false)}
+                onSave={handlePlan}
+            />
+
             <EditPlanModal
                 visible={editPlanModalVisible}
                 onClose={() => setEditPlanModalVisible(false)}
@@ -236,7 +321,8 @@ export default function Plan() {
                     {/* Header */}
                     <View className="flex-row justify-between items-center mb-6 pl-12">
                         {/* pl-12 to avoid overlap with menu button from layout */}
-                        <Text className="text-white text-3xl font-bold">Planning</Text>
+                        <Text className="text-white text-3xl font-bold">Plan</Text>
+
 
                     </View>
 
@@ -246,12 +332,28 @@ export default function Plan() {
                             {/* Plan Header */}
                             <View className="flex-row justify-between items-center mb-1">
                                 <Text className="text-white text-lg font-bold">Plan</Text>
-                                <TouchableOpacity className="bg-white/10 px-4 py-2 rounded-lg">
 
-                                    <Text className="text-white font-medium">
-                                        {hasUnreported ? "Report" : "Plan"}
-                                    </Text>
-                                </TouchableOpacity>
+                                {plans.some(p => p.status === "Unreported") ? (
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            const unreportedIndex = plans.findIndex(p => p.status === "Unreported");
+                                            if (unreportedIndex !== -1) openReportModal(unreportedIndex);
+                                        }}
+                                        className="bg-white/10 px-4 py-2 rounded-lg"
+                                    >
+                                        <Text className="text-white font-medium">Report</Text>
+                                    </TouchableOpacity>
+                                ) : (<TouchableOpacity
+                                    onPress={() => {
+
+                                        openPlanModal();
+                                    }}
+                                    className="bg-white/10 px-4 py-2 rounded-lg"
+                                >
+                                    <Text className="text-white font-medium">Plan</Text>
+                                </TouchableOpacity>)
+
+                                }
                             </View>
                             <View className="space-y-4">
 
@@ -308,7 +410,8 @@ export default function Plan() {
                                                             </TouchableOpacity>
                                                         </View>
                                                     </View>
-                                                ))}
+                                                ))
+                                                }
                                             </View>
                                         </View>
                                     ))
