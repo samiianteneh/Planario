@@ -2,15 +2,34 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { Alert, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ConfirmationModal from '../../../components/ConfirmationModal';
 
 export default function Setting() {
     const { top } = useSafeAreaInsets();
     const router = useRouter();
 
-    const loadDefaultPlans = async () => {
+    const [modalConfig, setModalConfig] = useState<{
+        visible: boolean;
+        title: string;
+        description: string;
+        confirmText: string;
+        confirmColor: string;
+        icon: keyof typeof Ionicons.glyphMap;
+        onConfirm: () => void;
+    }>({
+        visible: false,
+        title: '',
+        description: '',
+        confirmText: '',
+        confirmColor: '',
+        icon: 'help-circle-outline',
+        onConfirm: () => { }
+    });
+
+    const loadDefaultPlans = () => {
         const defaultData = [
             { "tasks": [{ "id": 1, "title": "gbhnb", "status": "Pending" }, { "id": 2, "title": "nm", "status": "Pending" }], "date": "February 20, 2026 at 02:56:02 PM", "status": "Unreported", "rate": 0 },
             { "tasks": [{ "id": 1, "title": "test 1", "status": "Achieved" }, { "id": 2, "title": "test 2", "status": "Achieved" }, { "id": 3, "title": "test 3", "status": "Achieved" }, { "id": 4, "title": "test 4", "status": "Achieved" }, { "id": 5, "title": "test 5", "status": "Achieved" }, { "id": 6, "title": "test 6", "status": "Achieved" }], "date": "February 21, 2026 at 09:58:51 PM", "status": "Reported", "rate": 90 },
@@ -20,45 +39,42 @@ export default function Setting() {
             { "tasks": [{ "id": 1, "title": "Task: Research competitor features", "status": "Achieved" }, { "id": 2, "title": "Task: Research competitor features", "status": "Achieved" }, { "id": 3, "title": "Task: Research competitor features", "status": "Failed" }, { "id": 4, "title": "Task: Research competitor features", "status": "Failed" }], "date": "February 10 2026, 5:32:55 PM", "status": "Reported", "rate": 50 }
         ];
 
-        Alert.alert(
-            "Load Default Plans",
-            "This will overwrite your existing plans. Are you sure?",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Load",
-                    onPress: async () => {
-                        try {
-                            await AsyncStorage.setItem('plans', JSON.stringify(defaultData));
-                            Alert.alert("Success", "Default plans have been loaded.");
-                        } catch (e) {
-                            Alert.alert("Error", "Failed to save plans.");
-                        }
-                    }
-                }
-            ]
-        );
+        setModalConfig({
+            visible: true,
+            title: "Load Default Plans",
+            description: "This will overwrite your existing plans with sample data. Continue?",
+            confirmText: "Load Data",
+            confirmColor: "bg-teal-600",
+            icon: "cloud-download-outline",
+            onConfirm: async () => {
+                await AsyncStorage.setItem('plans', JSON.stringify(defaultData));
+                setModalConfig(prev => ({ ...prev, visible: false }));
+                router.replace('/home/plan');
+            }
+        });
     };
 
     const resetData = () => {
-        Alert.alert(
-            "Reset Data",
-            "This will reset all your data. Are you sure?",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Reset",
-                    onPress: async () => {
-                        try {
-                            await AsyncStorage.removeItem('plans');
-                            Alert.alert("Success", "Data has been reset.");
-                        } catch (e) {
-                            Alert.alert("Error", "Failed to reset data.");
-                        }
-                    }
+        setModalConfig({
+            visible: true,
+            title: "Reset All Data",
+            description: "This will permanently delete your account, plans, and all settings. You will be logged out.",
+            confirmText: "Reset Everything",
+            confirmColor: "bg-red-600",
+            icon: "trash-outline",
+            onConfirm: async () => {
+                try {
+                    // Clear all app keys
+                    const keys = await AsyncStorage.getAllKeys();
+                    await AsyncStorage.multiRemove(keys);
+                    setModalConfig(prev => ({ ...prev, visible: false }));
+                    // Using replace to ensure user can't go back to settings
+                    router.replace('/');
+                } catch (e) {
+                    console.error('Failed to reset data', e);
                 }
-            ]
-        );
+            }
+        });
     };
 
     const SettingItem = ({ title, icon, onPres, color = "text-white" }: { title: string, icon: any, onPres: () => void, color?: string }) => (
@@ -136,6 +152,17 @@ export default function Setting() {
                     </ScrollView>
                 </View>
             </ImageBackground>
+
+            <ConfirmationModal
+                visible={modalConfig.visible}
+                title={modalConfig.title}
+                description={modalConfig.description}
+                confirmText={modalConfig.confirmText}
+                confirmColor={modalConfig.confirmColor}
+                icon={modalConfig.icon}
+                onConfirm={modalConfig.onConfirm}
+                onCancel={() => setModalConfig(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }
